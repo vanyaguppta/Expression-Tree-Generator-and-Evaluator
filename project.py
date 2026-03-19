@@ -15,42 +15,56 @@ class Node:
 
 # precedence for infix to postfix
 def precedence(op):
-    if op in "+-":
+    if op in ['+', '-']:
         return 1
-    if op in "*/":
+    if op in ['*', '/']:
         return 2
-    if op == "^":
+    if op == '^':
         return 3
     return 0
 
 
+
+
 # infix to postfix conversion
-def infix_to_postfix(exp):
+def infix_to_postfix(infix):
     stack = []
-    output = ""
+    postfix = ""
 
-    for c in exp:
-        if c.isalnum():
-            output += c
+    for ch in infix:
 
-        elif c == "(":
-            stack.append(c)
+        if ch == ' ':
+            continue
 
-        elif c == ")":
-            while stack and stack[-1] != "(":
-                output += stack.pop()
+        if ch.isalnum():
+            postfix += ch
+
+        elif ch == '(':
+            stack.append(ch)
+
+        elif ch == ')':
+            while len(stack) > 0 and stack[-1] != '(':
+                postfix += stack.pop()
+
+            if len(stack) == 0:
+                print("ERROR: mismatched brackets")
+                return ""
+
             stack.pop()
 
         else:
-            while stack and precedence(stack[-1]) >= precedence(c):
-                output += stack.pop()
-            stack.append(c)
+            while len(stack) > 0 and precedence(stack[-1]) >= precedence(ch):
+                postfix += stack.pop()
 
-    while stack:
-        output += stack.pop()
+            stack.append(ch)
 
-    return output
+    while len(stack) > 0:
+        if stack[-1] == '(':
+            print("ERROR: mismatched brackets")
+            return ""
+        postfix += stack.pop()
 
+    return postfix
 
 # building expression tree
 def build_binarytree(postfix):
@@ -172,3 +186,8 @@ for ch in infix:
 result = evaluate(root, values)
 
 print("Result:", result)
+# (A + 5) * (B - 3) + C * (D + 2) To test the program
+# ((A + B) * (C - D)) / (E + (F * G))
+# A + B * C - D / E + (F * (G + H))
+# (10 + A) * (B - 4) / (C + 2) + 7
+# ((A + 3) * (B + 4) - (C * D)) / (E - 2) + (F * G)
